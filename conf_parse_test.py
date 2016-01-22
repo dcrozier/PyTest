@@ -2,18 +2,23 @@
 
 from ciscoconfparse import CiscoConfParse
 
-
 def standardize_intfs(parse):
 
+    access_point_ports = []
+    hvac_ports = []
+    data_ports = []
+    unknown_ports = []
+
     ## Search all switch interfaces and modify them
-    #
     # r'^interface.+?thernet' is a regular expression, for ethernet intfs
     for intf in parse.find_objects(r'^interface.+?thernet'):
 
         has_loop_detection = intf.has_child_with(r'\sloop-detection')
         has_root_protection = intf.has_child_with(r'spanning-tree\sroot-protect')
         has_no_flow_control = intf.has_child_with(r'no\sflow-control')
-        has_access_point_configuration = intf.has_child_with(r'\sdual-mode\s\s11')
+        has_access_point_configuration = intf.has_child_with(r'\sdual-mode\s+11')
+        has_hvac_configuration = intf.has_child_with(r'\sdual-mode\s+24')
+        has_data_port_configuration = intf.has_child_with(r'\sdual-mode\s+42')
 
         ## Remove loop-detection misconfiguration
         if has_loop_detection:
@@ -31,6 +36,16 @@ def standardize_intfs(parse):
         if has_access_point_configuration:
             intf.delete_children_matching(r'port-name')
             intf.append_to_family(' port-name AP')
+            access_point_ports.append(intf)
+
+        elif has_hvac_configuration:
+            hvac_ports.append(intf)
+
+        elif has_data_port_configuration:
+            data_ports.append(intf)
+
+        else:
+            unknown_ports.append(intf)
 
     for lldp in parse.find_objects(r'^lldp'):
         ## Remove LLDP misconfiguration
@@ -44,6 +59,15 @@ def standardize_intfs(parse):
     parse.delete_lines(r'errdisable recovery cause loop-detect')
     parse.delete_lines(r'errdisable recovery cause all')
 
+    for vlan in parse.find_objects(r'^vlan\s\d+\s.+'):
+        if ('11' in vlan.text) or ('41' in vlan.text) or ('56' in vlan.text):
+            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in access_point_ports])))
+        elif '24' in vlan.text:
+            parse.replace_children(vlan.text, r' tagged.*', ' untagged {0}'.format(' '.join([port.text[10:] for port in hvac_ports])))
+        elif ('41' in vlan.text) or ('22' in vlan.text):
+            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in data_ports])))
+        else:
+            vlan.delete_children_matching(r' tagged')
 
 ## Parse the config
 parse = CiscoConfParse('brocade_conf.cfg')
