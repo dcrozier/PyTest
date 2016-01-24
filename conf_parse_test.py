@@ -4,10 +4,10 @@ from ciscoconfparse import CiscoConfParse
 
 def standardize_intfs(parse):
 
-    access_point_ports = []
-    hvac_ports = []
-    data_ports = []
-    unknown_ports = []
+    data_vlan = list()
+    facilitys_vlan = list()
+    wifi_vlans = list()
+    unknown_ports = list()
 
     ## Search all switch interfaces and modify them
     # r'^interface.+?thernet' is a regular expression, for ethernet intfs
@@ -36,13 +36,13 @@ def standardize_intfs(parse):
         if has_access_point_configuration:
             intf.delete_children_matching(r'port-name')
             intf.append_to_family(' port-name AP')
-            access_point_ports.append(intf)
+            wifi_vlans.append(intf)
 
         elif has_hvac_configuration:
-            hvac_ports.append(intf)
+            facilitys_vlan.append(intf)
 
         elif has_data_port_configuration:
-            data_ports.append(intf)
+            data_vlan.append(intf)
 
         else:
             unknown_ports.append(intf)
@@ -59,13 +59,15 @@ def standardize_intfs(parse):
     parse.delete_lines(r'errdisable recovery cause loop-detect')
     parse.delete_lines(r'errdisable recovery cause all')
 
+    ## Cleans up the vlan configuration
     for vlan in parse.find_objects(r'^vlan\s\d+\s.+'):
         if ('11' in vlan.text) or ('41' in vlan.text) or ('56' in vlan.text):
-            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in access_point_ports])))
+            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in wifi_vlans])))
         elif '24' in vlan.text:
-            parse.replace_children(vlan.text, r' tagged.*', ' untagged {0}'.format(' '.join([port.text[10:] for port in hvac_ports])))
+            parse.replace_children(vlan.text, r' tagged.*', ' untagged {0}'.format(' '.join([port.text[10:] for port in facilitys_vlan])))
         elif ('41' in vlan.text) or ('22' in vlan.text):
-            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in data_ports])))
+            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in data_vlan])))
+
         else:
             vlan.delete_children_matching(r' tagged')
 
