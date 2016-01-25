@@ -13,7 +13,7 @@ def standardize_intfs(parse):
 
     ## Search all switch interfaces and modify them
     # r'^interface.+?thernet' is a regular expression, for ethernet intfs
-    for intf in parse.find_objects(r'^interface.+?thernet'):
+    for intf in parse.find_objects(r'^interface.+'):
 
         has_loop_detection = intf.has_child_with(r'\sloop-detection')
         has_root_protection = intf.has_child_with(r'spanning-tree\sroot-protect')
@@ -21,6 +21,7 @@ def standardize_intfs(parse):
         has_access_point_configuration = intf.has_child_with(r'\sdual-mode\s+11')
         has_hvac_configuration = intf.has_child_with(r'\sdual-mode\s+24')
         has_data_port_configuration = intf.has_child_with(r'\sdual-mode\s+42')
+        is_layer3_intf = intf.has_child_with(r'\s+ip\s+add.*')
 
         ## Remove loop-detection misconfiguration
         if has_loop_detection:
@@ -29,6 +30,9 @@ def standardize_intfs(parse):
         ## Remove spanning-tree root-protect misconfiguration
         if has_root_protection:
             intf.delete_children_matching(r'spanning-tree\sroot-protect')
+
+        if is_layer3_intf:
+            intf.append_to_family(r' trust dscp')
 
         ## enables flow-control
         if has_no_flow_control:
