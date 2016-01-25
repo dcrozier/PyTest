@@ -1,10 +1,12 @@
 #!/usr/bin/python
 
 from ciscoconfparse import CiscoConfParse
+import yaml
+
 
 def standardize_intfs(parse):
-
     data_vlan = list()
+    voice_vlan = list()
     facilitys_vlan = list()
     wifi_vlans = list()
     unknown_ports = list()
@@ -37,11 +39,13 @@ def standardize_intfs(parse):
             intf.delete_children_matching(r'port-name')
             intf.append_to_family(' port-name AP')
             wifi_vlans.append(intf)
+            data_vlan.append(intf)
 
         elif has_hvac_configuration:
             facilitys_vlan.append(intf)
 
         elif has_data_port_configuration:
+            voice_vlan.append(intf)
             data_vlan.append(intf)
 
         else:
@@ -59,25 +63,29 @@ def standardize_intfs(parse):
     parse.delete_lines(r'errdisable recovery cause loop-detect')
     parse.delete_lines(r'errdisable recovery cause all')
 
-    ## Cleans up the vlan configuration
-    for vlan in parse.find_objects(r'^vlan\s\d+\s.+'):
-        if ('11' in vlan.text) or ('41' in vlan.text) or ('56' in vlan.text):
-            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in wifi_vlans])))
-        elif '24' in vlan.text:
-            parse.replace_children(vlan.text, r' tagged.*', ' untagged {0}'.format(' '.join([port.text[10:] for port in facilitys_vlan])))
-        elif ('41' in vlan.text) or ('22' in vlan.text):
-            parse.replace_children(vlan.text, r' tagged.*', ' tagged {0}'.format(' '.join([port.text[10:] for port in data_vlan])))
+    ## Cleans up vlan configuraiton.
+    vlans = [
+        ('11', wifi_vlans),
+        ('22', voice_vlan),
+        ('24', facilitys_vlan),
+        ('42', data_vlan),
+        ('56', wifi_vlans)
+    ]
+    tagged_ports = lambda vlan: parse.replace_children(
+        r'vlan\s+{0}'.format(vlan[0]), r'REPLACE', 'tagged ' + ' '.join([port_name(port) for port in sorted(vlan[1])])
+    )
+    port_name = lambda port: ' '.join([port.text[10:11], port.text[19:]])
+    parse.replace_all_children(r'vlan.*', r'[un]?tagged.*', 'REPLACE')
+    for x in vlans: tagged_ports(x)
+    parse.replace_all_children(r'vlan.*', r'REPLACE', '')
 
-        else:
-            vlan.delete_children_matching(r' tagged')
 
 ## Parse the config
 parse = CiscoConfParse('brocade_conf.cfg')
 
 ## Search and standardize the configuration
 standardize_intfs(parse)
-parse.commit()     # commit() **must** be called before searching again
+parse.commit()  # commit() **must** be called before searching again
 
 ## Write the new configuration
 parse.save_as('brocade_conf.cfg.new')
-
