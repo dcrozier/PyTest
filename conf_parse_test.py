@@ -76,12 +76,12 @@ def standardize_intfs(parse):
         ('56', wifi_vlans)
     ]
     tagged_ports = lambda vlan: parse.replace_children(
-        r'vlan\s+{0}'.format(vlan[0]), r'REPLACE', 'tagged ' + ' '.join([port_name(port) for port in sorted(vlan[1])])
+        r'vlan\s+{0}'.format(vlan[0]), r'!', 'tagged ' + ' '.join([port_name(port) for port in sorted(vlan[1])])
     )
     port_name = lambda port: ' '.join([port.text[10:11], port.text[19:]])
-    parse.replace_all_children(r'vlan.*', r'[un]?tagged.*', 'REPLACE')
+    parse.replace_all_children(r'vlan.*', r'[un]?tagged.*', '!')
     for x in vlans: tagged_ports(x)
-    parse.replace_all_children(r'vlan.*', r'REPLACE', '')
+    # parse.replace_all_children(r'vlan.*', r'REPLACE', '')
 
 
 ## Parse the config
