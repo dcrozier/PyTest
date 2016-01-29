@@ -4,6 +4,7 @@ import yaml
 import os
 from datetime import timedelta
 import re
+import netaddr
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 
@@ -43,7 +44,7 @@ if os.path.isfile('../ssfusd.yml'):
         output = yaml.load(stream)
 if os.path.isfile('../mac_inventory.yml'):
     with open('../mac_inventory.yml', 'r') as stream:
-        output.append(yaml.load(stream))
+        output.update(yaml.load(stream))
     loaded_data = lambda x: output[x]
 else:
     print('No data to load, file not found')
@@ -60,16 +61,20 @@ for ip in loaded_data('ip_addresses'):
     sysName = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysName')[0][0]
     sysDescr = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysDescr')[0][0]
     sysUpTime = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysUpTime')[0][0]
-    dot1dTpFdbPort = get(loaded_data('community_string'), ip, 'BRIDGE-MIB', 'dot1dTpFdbPort')
+    cam_table = get(loaded_data('community_string'), ip, 'BRIDGE-MIB', 'dot1dTpFdbPort')
     ifindex = get(loaded_data('community_string'), ip, 'IF-MIB', 'ifIndex')
 
     # Sets cam_table variable
-    cam_table = {}
-    for port in ifindex[0]: cam_table[port] = []
+    mac_address_table = {}
+    for port in ifindex[0]: mac_address_table[port] = []
 
     # Appends MAC addresses to the interface
     mac = lambda x: re.search(r'[0-9:a-fA-F]{17}', x).group()
-    for port in dot1dTpFdbPort[0]: cam_table[port].append(mac(dot1dTpFdbPort[1][dot1dTpFdbPort[0].index(port)]))
+    for port in cam_table[0]:
+        mac_address_table[port].append(mac(cam_table[1][cam_table[0].index(port)]))
+
+    with open('temp_dict.yml', 'w') as f:
+        yaml.dump(mac_address_table, f)
 
     print(sysName, str(timedelta(seconds=int(sysUpTime) / 100)), ip, sysDescr)
     writer.writerow((sysName, timedelta(seconds=int(sysUpTime) / 100), ip, sysDescr))
