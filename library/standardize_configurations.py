@@ -109,11 +109,11 @@ def standardize_configs(chan):
             print('Adding "ip igmp version 2" to {0}'.format(interface.text))
             send_command(interface.text, 'ip igmp version 2', configure=True, chan=chan)
 
-        # enables flow-control
-        if has_no_flow_control:
-            interface.delete_children_matching(r'no\sflow-control.+')
-            print('Enabling "flow-control" on {0}'.format(interface.text))
-            send_command(interface.text, 'flow-control', configure=True, chan=chan)
+        # # enables flow-control
+        # if has_no_flow_control:
+        #     interface.delete_children_matching(r'no\sflow-control.+')
+        #     print('Enabling "flow-control" on {0}'.format(interface.text))
+        #     send_command(interface.text, 'flow-control', configure=True, chan=chan)
     return output
 
 
