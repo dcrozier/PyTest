@@ -128,10 +128,7 @@ def do_stuff(ip):
     print('Closing SSH to {0}'.format(ip))
     ssh.close()
 
-threads = []
-counter = 0
-t = {}
+
 for ip in IP:
-    counter += 1
-    _start_new_thread(do_stuff, (ip,))
+    do_stuff(ip)
 
