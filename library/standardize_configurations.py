@@ -105,9 +105,9 @@ def standardize_configs(chan):
             interface.append_to_family(r' trust dscp')
             print('Adding "trust dscp" to {0}'.format(interface.text))
             send_command(interface.text, 'trust dscp', configure=True, chan=chan)
-            interface.append_to_family(r' ip igmp version 3')
-            print('Adding "ip igmp version 3" to {0}'.format(interface.text))
-            send_command(interface.text, 'ip igmp version 3', configure=True, chan=chan)
+            interface.append_to_family(r' ip igmp version 2')
+            print('Adding "ip igmp version 2" to {0}'.format(interface.text))
+            send_command(interface.text, 'ip igmp version 2', configure=True, chan=chan)
 
         # enables flow-control
         if has_no_flow_control:
