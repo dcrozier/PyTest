@@ -3,7 +3,7 @@ import yaml
 import re
 from ciscoconfparse import CiscoConfParse
 import time
-from threading import Thread
+from threading import _start_new_thread
 import sys
 import paramiko
 import os
@@ -117,28 +117,21 @@ def standardize_configs(chan):
     return output
 
 
-def do_stuff():
-    for ip in IP:
-        ssh, channel = login(ip, USERNAME, PASSWORD)
-        output = standardize_configs(chan=channel)
-        # Saves configuration
-        send_command('write memory', chan=channel)
-        output.commit()
-        output.save_as('test_config.cfg')
-        # Closes the connection
-        print('Closing SSH to {0}'.format(ip))
-        ssh.close()
+def do_stuff(ip):
+    ssh, channel = login(ip, USERNAME, PASSWORD)
+    output = standardize_configs(chan=channel)
+    # Saves configuration
+    send_command('write memory', chan=channel)
+    output.commit()
+    output.save_as('test_config.cfg')
+    # Closes the connection
+    print('Closing SSH to {0}'.format(ip))
+    ssh.close()
 
-
-thread = Thread(target=do_stuff)
 threads = []
 counter = 0
 t = {}
-for i in range(len(IP)):
+for ip in IP:
     counter += 1
-    t[IP[i]] = thread
-    if counter == 20:
-        t[IP[i]].join()
-        counter = 0
-    threads.append(t[IP[i]])
-    t[IP[i]].start()
+    _start_new_thread(do_stuff, (ip,))
+
