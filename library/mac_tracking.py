@@ -39,8 +39,8 @@ def get(community_string, ip, mib, request):
 output = str()
 
 # Loads saved data
-if os.path.isfile('../ssfusd.yml'):
-    with open('../ssfusd.yml', 'r') as stream:
+if os.path.isfile('../access.yml'):
+    with open('../access.yml', 'r') as stream:
         output = yaml.load(stream)
 if os.path.isfile('../mac_inventory.yml'):
     with open('../mac_inventory.yml', 'r') as stream:
