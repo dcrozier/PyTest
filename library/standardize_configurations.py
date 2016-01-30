@@ -121,7 +121,8 @@ def do_stuff():
     for ip in IP:
         ssh, channel = login(ip, USERNAME, PASSWORD)
         output = standardize_configs(chan=channel)
-        # Saves configuration backup
+        # Saves configuration
+        send_command('write memory', chan=channel)
         output.commit()
         output.save_as('test_config.cfg')
         # Closes the connection
