@@ -4,6 +4,8 @@ import yaml
 import os
 from datetime import timedelta
 import re
+import interface_profile
+import pprint
 import netaddr
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
@@ -14,11 +16,11 @@ def get(community_string, ip, mib, request):
     value = ()
     oid = ()
     errorindication, errorstatus, errorindex, varbindtable = cmdGen.bulkCmd(
-            cmdgen.CommunityData(community_string),
-            cmdgen.UdpTransportTarget((ip, 161)),
-            0,
-            1,
-            cmdgen.MibVariable(mib, request)
+        cmdgen.CommunityData(community_string),
+        cmdgen.UdpTransportTarget((ip, 161)),
+        0,
+        1,
+        cmdgen.MibVariable(mib, request)
     )
     if errorindication:
         print(ip + ':', errorindication)
@@ -50,33 +52,37 @@ else:
     print('No data to load, file not found')
     exit()
 
-# opens csv file
-f = open('../inventory.csv', 'w+')
-writer = csv.writer(f)
-writer.writerow(('sysName', 'sysUpTime', 'IP Address', 'sysDescr'))
-
 for ip in loaded_data('ip_addresses'):
 
     # Gathers some data
     sysName = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysName')[0][0]
-    sysDescr = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysDescr')[0][0]
-    sysUpTime = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysUpTime')[0][0]
-    cam_table = get(loaded_data('community_string'), ip, 'BRIDGE-MIB', 'dot1dTpFdbPort')
-    ifindex = get(loaded_data('community_string'), ip, 'IF-MIB', 'ifIndex')
+    print(sysName)
 
-    # Sets cam_table variable
-    mac_address_table = {}
-    for port in ifindex[0]: mac_address_table[port] = []
+    sysDescr = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysDescr')[0][0]
+    print(sysDescr)
+
+    sysUpTime = get(loaded_data('community_string'), ip, 'SNMPv2-MIB', 'sysUpTime')[0][0]
+    print(str(timedelta(seconds=int(sysUpTime) / 100)))
+
+    cam_table = get(loaded_data('community_string'), ip, 'BRIDGE-MIB', 'dot1dTpFdbPort')
+    print("MAC Table Loaded")
+
+    ifIndex = get(loaded_data('community_string'), ip, 'IF-MIB', 'ifIndex')
+    ifName = get(loaded_data('community_string'), ip, 'IF-MIB', 'ifName')
+    print("Interface Table Loaded")
+
+    interfaces = {}
+    for i in range(len(ifIndex[0])):
+        interfaces[ifIndex[0][i]] = interface_profile.Interface(ifIndex[0][i], ifName[0][i])
 
     # Appends MAC addresses to the interface
-    mac = lambda x: re.search(r'[0-9:a-fA-F]{17}', x).group()
-    for port in cam_table[0]:
-        mac_address_table[port].append(mac(cam_table[1][cam_table[0].index(port)]))
+    for i in range(len(cam_table[0])):
+        mac = re.search(r'[0-9:a-fA-F]{17}', cam_table[1][i]).group()
+        interfaces[cam_table[0][i]].mac_table.append(netaddr.EUI(mac))
 
-    with open('temp_dict.yml', 'w') as f:
-        yaml.dump(mac_address_table, f)
-
-    print(sysName, str(timedelta(seconds=int(sysUpTime) / 100)), ip, sysDescr)
-    writer.writerow((sysName, timedelta(seconds=int(sysUpTime) / 100), ip, sysDescr))
-
-f.close()
+    for interface in interfaces:
+        for mac in interfaces[interface].mac_table:
+            if mac.oui in output['Access_Points']:
+                interfaces[interface].flag = 1
+            if mac.oui in output['IP_Speaker']:
+                interfaces[interface].flag = 2

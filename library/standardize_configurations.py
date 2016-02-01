@@ -3,8 +3,8 @@ import yaml
 import re
 from ciscoconfparse import CiscoConfParse
 import time
-from threading import _start_new_thread
 import sys
+import csv
 import paramiko
 import os
 
@@ -58,7 +58,12 @@ def login(ip, username, password):
             continue
 
 
-def standardize_configs(chan):
+def standardize_configs(ip, chan):
+
+    f = open('../inventory.csv', 'w+')
+    writer = csv.writer(f)
+    writer.writerow(('IP Address', 'Interface', 'IP Subnet', 'DHCP Server'))
+
     output = send_command('enable', '!Tmgmt', 'skip', 'sh run', read=True, chan=chan)
 
     # Captures running config
@@ -68,23 +73,35 @@ def standardize_configs(chan):
     output = CiscoConfParse(capture.splitlines())
 
     # Corrects DNS Setting
-    x = output.find_lines(r'ip dns server-address.*')
+    dns = output.find_lines(r'ip dns server-address.*')
     output.replace_lines(r'ip dns server-address.*', r'ip dns server-address 10.210.1.214 10.220.1.200')
     print('Correcting dns entry')
-    send_command('no {0}'.format(x.pop()), 'ip dns server-address 10.210.1.214 10.220.1.200', configure=True, chan=chan)
+    send_command('no {0}'.format(dns.pop()), 'ip dns server-address 10.210.1.214 10.220.1.200', configure=True, chan=chan)
 
     # Enables IGMP Snooping globally
     output.insert_after(r'hostname', r'ip multicast active')
     print('Enabling "ip multicast"')
     send_command('ip multicast active', configure=True, chan=chan)
 
+    virtual_interfaces = output.find_objects_w_child(r'interface ve.*', r'\s+ip\s+helper.*',)
+    for intf in virtual_interfaces:
+        interface = intf.text
+        has_dhcp_helper = intf.has_child_with(r'ip helper.*')
+        for line in intf.all_children:
+            if 'ip address' in line.text:
+                address = line.text
+            if 'helper-address' in line.text:
+                dhcp = line.text
+        if has_dhcp_helper:
+            writer.writerow((ip, interface, address, dhcp))
+
     # Iterates through interfaces and cleans up misconfigurations
-    for interface in output.find_objects(r'^interface.+'):
-        has_loop_detection = interface.has_child_with(r'loop-detection')
-        has_bpdu_guard = interface.has_child_with(r'stp-bpdu-guard')
-        has_root_protection = interface.has_child_with(r'spanning-tree\sroot-protect')
-        has_no_flow_control = interface.has_child_with(r'no\sflow-control')
-        is_layer3_intf = (interface.has_child_with(r'ip\s+add')) or ('interface ve.*' in interface.text)
+    # for interface in output.find_objects(r'^interface.+'):
+    #     has_loop_detection = interface.has_child_with(r'loop-detection')
+    #     has_bpdu_guard = interface.has_child_with(r'stp-bpdu-guard')
+    #     has_root_protection = interface.has_child_with(r'spanning-tree\sroot-protect')
+    #     has_no_flow_control = interface.has_child_with(r'no\sflow-control')
+    #     is_layer3_intf = (interface.has_child_with(r'ip\s+add')) or ('interface ve.*' in interface.text)
 
         # Temporarily disabled
         #
@@ -101,13 +118,13 @@ def standardize_configs(chan):
         #     send_command(interface.text, 'no spanning-tree root', configure=True)
 
         # Adds IGMP snooping and QoS to Layer 3 interfaces
-        if is_layer3_intf and not ('loopback' in interface.text or 'management' in interface.text):
-            interface.append_to_family(r' trust dscp')
-            print('Adding "trust dscp" to {0}'.format(interface.text))
-            send_command(interface.text, 'trust dscp', configure=True, chan=chan)
-            interface.append_to_family(r' ip igmp version 2')
-            print('Adding "ip igmp version 2" to {0}'.format(interface.text))
-            send_command(interface.text, 'ip igmp version 2', configure=True, chan=chan)
+        # if is_layer3_intf and not ('loopback' in interface.text or 'management' in interface.text):
+        #     interface.append_to_family(r' trust dscp')
+        #     print('Adding "trust dscp" to {0}'.format(interface.text))
+        #     send_command(interface.text, 'trust dscp', configure=True, chan=chan)
+        #     interface.append_to_family(r' ip igmp version 2')
+        #     print('Adding "ip igmp version 2" to {0}'.format(interface.text))
+        #     send_command(interface.text, 'ip igmp version 2', configure=True, chan=chan)
 
         # # enables flow-control
         # if has_no_flow_control:
@@ -119,7 +136,7 @@ def standardize_configs(chan):
 
 def do_stuff(ip):
     ssh, channel = login(ip, USERNAME, PASSWORD)
-    output = standardize_configs(chan=channel)
+    output = standardize_configs(ip, chan=channel)
     # Saves configuration
     send_command('write memory', chan=channel)
     output.commit()
