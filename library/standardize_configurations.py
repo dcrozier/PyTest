@@ -60,16 +60,14 @@ def login(ip, username, password):
 
 def standardize_configs(ip, chan):
 
-    f = open('../inventory.csv', 'w+')
-    writer = csv.writer(f)
-    writer.writerow(('IP Address', 'Interface', 'IP Subnet', 'DHCP Server'))
-
+    print 'Downloading running configuration'
     output = send_command('enable', '!Tmgmt', 'skip', 'sh run', read=True, chan=chan)
 
     # Captures running config
     capture = re.findall(r'!\r\nver.*end', output, re.S).pop()
 
     # Parses running config
+    print 'Parsing configuraion'
     output = CiscoConfParse(capture.splitlines())
 
     # Corrects DNS Setting
@@ -83,15 +81,19 @@ def standardize_configs(ip, chan):
     print('Enabling "ip multicast"')
     send_command('ip multicast active', configure=True, chan=chan)
 
+    print 'Searching for interfaces with dhcp helper'
     virtual_interfaces = output.find_objects_w_child(r'interface ve.*', r'\s+ip\s+helper.*',)
     for intf in virtual_interfaces:
         interface = intf.text
+        print interface
         has_dhcp_helper = intf.has_child_with(r'ip helper.*')
         for line in intf.all_children:
             if 'ip address' in line.text:
                 address = line.text
+                print address
             if 'helper-address' in line.text:
                 dhcp = line.text
+                print dhcp
         if has_dhcp_helper:
             writer.writerow((ip, interface, address, dhcp))
 
@@ -145,7 +147,10 @@ def do_stuff(ip):
     print('Closing SSH to {0}'.format(ip))
     ssh.close()
 
-
+f = open('../inventory.csv', 'w+')
+writer = csv.writer(f)
+writer.writerow(('IP Address', 'Interface', 'IP Subnet', 'DHCP Server'))
 for ip in IP:
     do_stuff(ip)
+f.close()
 
