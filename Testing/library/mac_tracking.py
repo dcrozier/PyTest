@@ -44,8 +44,8 @@ output = str()
 if os.path.isfile('../access.yml'):
     with open('../access.yml', 'r') as stream:
         output = yaml.load(stream)
-if os.path.isfile('../mac_inventory.yml'):
-    with open('../mac_inventory.yml', 'r') as stream:
+if os.path.isfile('../oui_discovery.yml'):
+    with open('../oui_discovery.yml', 'r') as stream:
         output.update(yaml.load(stream))
     loaded_data = lambda x: output[x]
 else:

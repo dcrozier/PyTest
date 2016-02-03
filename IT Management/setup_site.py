@@ -6,10 +6,10 @@ from netaddr import IPAddress, IPNetwork, iter_iprange
 import re
 import sys
 import os
-from classes import Customer
+from library import Site
 
 # Main definition - constants
-customer = object
+SITE = object
 
 
 # =======================
@@ -45,13 +45,13 @@ def exec_menu(choice):
 # Menu 1
 def NewSite():
     iplist = []
-    global customer
-    customer = Customer(raw_input('Customer Name: ').upper())
-    customer.community_string = raw_input('SNMP Community String: ')
-    customer.username = raw_input('SSH/Telnet Username: ')
-    customer.psk = raw_input('SSH/Telnet Pre-shared key: ')
-    customer.enable = raw_input('Enable Password: ')
-    customer.tftp = raw_input('TFTP Address: ')
+    global SITE
+    SITE = Site(raw_input('Site Code: ').upper())
+    SITE.community_string = raw_input('SNMP Community String: ')
+    SITE.username = raw_input('SSH/Telnet Username: ')
+    SITE.psk = raw_input('SSH/Telnet Pre-shared key: ')
+    SITE.enable = raw_input('Enable Password: ')
+    SITE.tftp = raw_input('TFTP Address: ')
 
     print '\nTarget Devices:\n' \
           '1. Single IP address (x.x.x.x)\n' \
@@ -85,12 +85,9 @@ def NewSite():
         ip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', ip_range)
         iplist = list(iter_iprange(ip[0], ip[1]))
 
-    customer.iplist = iplist
+    SITE.iplist = iplist
 
-    print "0. Save"
-    choice = raw_input("Choice")
-    exec_menu(choice)
-    return
+    sys.exit("Site Created")
 
 
 # Menu 2
@@ -114,8 +111,8 @@ def back():
 
 # Exit program
 def leave():
-    f = open('yamls\\' + customer.name + '.yml', 'w+')
-    yaml.dump(customer, f, default_flow_style=False)
+    f = open('yamls\\' + SITE.name + '.yml', 'w+')
+    yaml.dump(SITE, f)
     f.close()
     sys.exit()
 
