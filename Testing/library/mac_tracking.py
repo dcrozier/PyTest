@@ -1,13 +1,13 @@
 #!/usr/bin/python
-import csv
-import yaml
 import os
-from datetime import timedelta
 import re
-import interface_profile
-import pprint
+from datetime import timedelta
+
 import netaddr
+import yaml
 from pysnmp.entity.rfc3413.oneliner import cmdgen
+
+import interface_profile
 
 
 # Sends and receives an SNMP query

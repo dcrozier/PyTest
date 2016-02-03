@@ -17,10 +17,8 @@ customer = object
 # =======================
 # Main menu
 def main_menu():
-    os.system('clear')
 
-    print "Welcome,\n"
-    print "Please choose the menu you want to start:"
+    print "Please choose the menu you want to start:\n"
     print "1. New Site"
     # print "2. Load Site"
     print "0. Quit"
@@ -32,7 +30,6 @@ def main_menu():
 
 # Execute menu
 def exec_menu(choice):
-    # os.system('clear')
     ch = choice.lower()
     if ch == '':
         menu_actions['main_menu']()
@@ -54,8 +51,10 @@ def NewSite():
     customer.username = raw_input('SSH/Telnet Username: ')
     customer.psk = raw_input('SSH/Telnet Pre-shared key: ')
     customer.enable = raw_input('Enable Password: ')
+    customer.tftp = raw_input('TFTP Address: ')
 
-    print '1. Single IP address (x.x.x.x)\n' \
+    print '\nTarget Devices:\n' \
+          '1. Single IP address (x.x.x.x)\n' \
           '2. IP file (Must be in working directory)\n' \
           '3. Subnet (x.x.x.x/y)\n' \
           '4. Network Range (x.x.x.x - y.y.y.y)\n'
@@ -88,7 +87,6 @@ def NewSite():
 
     customer.iplist = iplist
 
-    print "9. Back"
     print "0. Save"
     choice = raw_input("Choice")
     exec_menu(choice)

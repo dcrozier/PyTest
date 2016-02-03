@@ -47,11 +47,11 @@ for ip in saved_data.iplist:
     for t in range(300, -1, -5):
         minutes = t / 60
         seconds = t % 60
-        print "%d:%2d" % (minutes, seconds)
+        print "%d:%2d  " % (minutes, seconds),
         time.sleep(5.0)
 
     # Reopens SSH connection
-    print("Reopening SSH Connection")
+    print("Re-opening SSH Connection")
     chan, ssh = classes.login(ip.format(), saved_data.username, saved_data.psk)
 
     # Download running config
@@ -59,11 +59,11 @@ for ip in saved_data.iplist:
     running_config = classes.get_running_config(chan, saved_data.enable)
 
     # Activates IGMP snooping
-    print("Activiting IGMP Snooping")
+    print("Enabling IGMP Snooping")
     classes.send_command('ip multicast active', configure=True, chan=chan)
 
     # Activates DHCP snooping
-    print("Activating DHCP Snooping")
+    print("Enabling DHCP Snooping")
     for vlan_id in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
         classes.send_command('ip dhcp snooping vlan {0}'.format(str(vlan_id)), configure=True, chan=chan)
 

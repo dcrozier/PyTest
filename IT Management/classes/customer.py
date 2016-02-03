@@ -9,3 +9,4 @@ class Customer(object):
         self.username = ''
         self.psk = ''
         self.enable = ''
+        self.tftp = ''
