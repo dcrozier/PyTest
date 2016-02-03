@@ -1,4 +1,4 @@
-community_string: public
-ip_addresses: [ 10.141.0.1 ]
+community_string: dmon2
+ip_addresses: [ 10.254.50.1 ]
 pre_shared_key: '!QAZ2wsx'
 user_name: itmgmt

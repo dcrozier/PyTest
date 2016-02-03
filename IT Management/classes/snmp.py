@@ -13,7 +13,7 @@ def get(community_string, ip, mib, request):
             1,
             cmdgen.MibVariable(mib, request)
     )
-
+    varbindtable.pop()
     if errorindication:
         print(ip + ':' + errorindication)
     if errorstatus:

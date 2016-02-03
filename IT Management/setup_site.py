@@ -1,20 +1,15 @@
 #!/usr/bin/python
 # Creates access yamls
 import yaml
+import json
 from netaddr import IPAddress, IPNetwork, iter_iprange
 import re
 import sys
 import os
+from classes import Customer
 
 # Main definition - constants
 customer = object
-
-
-class Customer(object):
-    def __init__(self, name):
-        self.name = name
-        self.community_string = ''
-        self.iplist = []
 
 
 # =======================
@@ -28,8 +23,8 @@ def main_menu():
     print "Please choose the menu you want to start:"
     print "1. New Site"
     # print "2. Load Site"
-    print "\n0. Quit"
-    choice = raw_input(" >>  ")
+    print "0. Quit"
+    choice = raw_input("Choice: ")
     exec_menu(choice)
 
     return
@@ -56,11 +51,14 @@ def NewSite():
     global customer
     customer = Customer(raw_input('Customer Name: ').upper())
     customer.community_string = raw_input('SNMP Community String: ')
+    customer.username = raw_input('SSH/Telnet Username: ')
+    customer.psk = raw_input('SSH/Telnet Pre-shared key: ')
+    customer.enable = raw_input('Enable Password: ')
 
-    print '\t1. Single IP address (x.x.x.x)\n' \
-          '\t2. IP file (Must be in working directory)\n' \
-          '\t3. Subnet (x.x.x.x/y)\n' \
-          '\t4. Network Range (x.x.x.x - y.y.y.y)\n'
+    print '1. Single IP address (x.x.x.x)\n' \
+          '2. IP file (Must be in working directory)\n' \
+          '3. Subnet (x.x.x.x/y)\n' \
+          '4. Network Range (x.x.x.x - y.y.y.y)\n'
     choice = int(raw_input('Choose an option: '))
 
     if choice == 1:
@@ -91,8 +89,8 @@ def NewSite():
     customer.iplist = iplist
 
     print "9. Back"
-    print "0. Quit"
-    choice = raw_input(" >>  ")
+    print "0. Save"
+    choice = raw_input("Choice")
     exec_menu(choice)
     return
 
@@ -119,7 +117,7 @@ def back():
 # Exit program
 def leave():
     f = open('yamls\\' + customer.name + '.yml', 'w+')
-    yaml.dump(customer, f)
+    yaml.dump(customer, f, default_flow_style=False)
     f.close()
     sys.exit()
 
