@@ -86,17 +86,15 @@ def NewSite():
         iplist = list(iter_iprange(ip[0], ip[1]))
 
     SITE.iplist = iplist
-
-    sys.exit("Site Created")
+    exec_menu('0')
 
 
 # Menu 2
 def LoadSite():
     print "Load Site\n"
     name = raw_input('Customer Name:').upper()
-    if os.path.isfile("yamls\\%s.yml" % name):
-        f = open("yamls\\%s.yml" % name)
-        customer = yaml.load(f)
+    f = open("yamls\\%s.yml" % name)
+    customer = yaml.load(f)
     print "9. Back"
     print "0. Quit"
     choice = raw_input(" >>  ")
@@ -114,7 +112,7 @@ def leave():
     f = open('yamls\\' + SITE.name + '.yml', 'w+')
     yaml.dump(SITE, f)
     f.close()
-    sys.exit()
+    sys.exit("Site Created")
 
 
 # =======================

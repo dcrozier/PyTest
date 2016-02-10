@@ -9,4 +9,4 @@ class Site(object):
         self.username = ''
         self.psk = ''
         self.enable = ''
-        self.tftp = ''
+        self.tftp = None

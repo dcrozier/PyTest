@@ -1,6 +1,6 @@
 import paramiko
 import time
-import sys
+import socket
 
 paramiko.util.log_to_file("logs\\paramiko.log")
 
@@ -39,11 +39,14 @@ def get_running_config(chan, enable_password):
     # sends 'show running-config' to device
     running_config = send_command('enable', enable_password, 'skip', 'sh run', read=True, chan=chan)
 
+    time.sleep(2)
     # Capture only running config data
     running_config = re.findall(r'!\r\nver.*end', running_config, re.S).pop()
 
     # Parses config
     running_config = CiscoConfParse(running_config.splitlines())
+
+    print("Download complete")
 
     return running_config
 
@@ -67,7 +70,9 @@ def login(ip, username, password):
             chan = ssh.invoke_shell()
             time.sleep(2)
             return chan, ssh
-        except paramiko.SSHException:
-            if counter == 5:
-                sys.exit('Failed to Connnect')
+        except socket.error:
+            return 0, 0
+        except paramiko.ssh_exception.SSHException:
+            if counter == 3:
+                return 0, 0
             continue

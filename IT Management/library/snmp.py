@@ -13,15 +13,16 @@ def get(community_string, ip, mib, request):
             1,
             cmdgen.MibVariable(mib, request)
     )
-    varbindtable.pop()
     if errorindication:
-        print(ip + ':' + errorindication)
+        print(ip + ':' + str(errorindication))
+        return
     if errorstatus:
         try:
             print('%s at %s' % (errorstatus.prettyPrint(), errorindex and varbindtable[int(errorindex) - 1] or '?'))
         except AttributeError:
             print('%s at %s' % (errorstatus, errorindex and varbindtable[int(errorindex) - 1] or '?'))
     else:
+        varbindtable.pop()
         for varBindTableRow in varbindtable:
             for x, y in varBindTableRow:
                 oid = oid + (x.prettyPrint(),)

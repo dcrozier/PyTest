@@ -23,15 +23,25 @@ if not os.path.isfile('csv\\{0}.csv'.format(SITE)):
 with open('yamls\\{0}.yml'.format(SITE), 'r+') as f:
     saved_data = yaml.load(f)
 
+# Reads mac to vlan spreadsheet for existing network
+print("Loading MAC address to search for")
+mac_per_vlan = defaultdict(list)
+with open('csv\\{0}.csv'.format(SITE), 'r') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        for key in row.keys():
+            mac_per_vlan[key].append(netaddr.EUI(library.format_mac(row[key])))
+
 for ip in saved_data.iplist:
 
     # Opens SSH connection
     print("Opening SSH connection")
     chan, ssh = library.login(ip.format(), saved_data.username, saved_data.psk)
 
-    # Updates Boot Rom and waits for startup
-    print("Loading boot loader")
-    library.send_command('copy tftp flash {0} 08030d/ICX7450/Boot/spz10105.bin boot'.format(saved_data.tftp), chan=chan)
+    if saved_data.tftp:
+        # Updates Boot Rom and waits for startup
+        print("Loading boot loader")
+        library.send_command('copy tftp flash {0} 08030d/ICX7450/Boot/spz10105.bin boot'.format(saved_data.tftp), chan=chan)
 
     # Visual timer to wait for boot rom to finish loading
     for t in range(30, -1, -5):
@@ -46,7 +56,7 @@ for ip in saved_data.iplist:
 
     # Adds vlan 20
     print("Adding vlan 20")
-    library.send_command('vlan 20 name Servers&Printers', 'tag e 1/2/1', 'tag e 1/3/1', 'span 80', configure=True,
+    library.send_command('vlan 20 name Servers_Printers', 'tag e 1/2/1', 'tag e 1/3/1', 'span 80', configure=True,
                          chan=chan)
 
     # Writes memory
@@ -102,15 +112,6 @@ for ip in saved_data.iplist:
     for i in range(len(cam_table[0])):
         mac = re.search(r'[0-9:a-fA-F]{17}', cam_table[1][i]).group()
         interfaces[cam_table[0][i]].mac_table.append(netaddr.EUI(mac))
-
-    # Reads mac to vlan spreadsheet for existing network
-    print("Loading MAC address to search for")
-    mac_per_vlan = defaultdict(list)
-    with open('csv\\{0}.csv'.format(SITE), 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            for key in row.keys():
-                mac_per_vlan[key].append(netaddr.EUI(library.format_mac(row[key])))
 
     # Searches for live mac address and configures based on spreadsheet
     print("Searching interfaces for devices")

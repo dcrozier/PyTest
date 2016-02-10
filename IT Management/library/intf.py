@@ -6,4 +6,5 @@ class Interface(object):
         self.ifName = name
         self.ifIndex = index
         self.mac_table = []
-        self.flag = 0
+        self.flag = None
+        self.command_name = 'interface {0}'.format(' '.join([self.ifName[:8], self.ifName[8:]]))
