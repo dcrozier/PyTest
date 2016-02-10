@@ -1,0 +1,32 @@
+!!python/object:library.customer.Customer
+community_string: Hu$D#rw
+iplist:
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709505
+  - 4
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709515
+  - 4
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709525
+  - 4
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709535
+  - 4
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709545
+  - 4
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709555
+  - 4
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple
+  - 170709565
+  - 4
+name: HUSD

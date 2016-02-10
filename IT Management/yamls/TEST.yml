@@ -1,0 +1,10 @@
+!!python/object:library.site.Site
+community_string: dmon2
+enable: '!QAZ2wsx'
+iplist:
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple [184470274, 4]
+name: TEST
+psk: '!QAZ2wsx'
+tftp: ''
+username: itmgmt
