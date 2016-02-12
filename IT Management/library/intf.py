@@ -8,3 +8,4 @@ class Interface(object):
         self.mac_table = []
         self.flag = None
         self.command_name = 'interface {0}'.format(' '.join([self.ifName[:8], self.ifName[8:]]))
+        self.vlan = 1

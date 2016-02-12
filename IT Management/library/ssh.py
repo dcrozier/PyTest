@@ -37,7 +37,7 @@ def get_running_config(chan, enable_password):
     import re
 
     # sends 'show running-config' to device
-    running_config = send_command('enable', enable_password, 'skip', 'sh run', read=True, chan=chan)
+    running_config = send_command('skip', 'sh run', read=True, chan=chan)
 
     time.sleep(2)
     # Capture only running config data
@@ -66,9 +66,10 @@ def login(ip, username, password):
             # Opens SSH connection
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username=username, password=password)
+            ssh.connect(ip, username=username, password=password, look_for_keys=False, allow_agent=True)
             chan = ssh.invoke_shell()
-            time.sleep(2)
+            time.sleep(1)
+            send_command('enable', username, password, chan=chan)
             return chan, ssh
         except socket.error:
             return 0, 0

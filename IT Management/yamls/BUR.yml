@@ -3,8 +3,6 @@ community_string: Hu$D#rw
 enable: '!QAZ2wsx'
 iplist:
 - !!python/object/new:netaddr.ip.IPAddress
-  state: !!python/tuple [169857537, 4]
-- !!python/object/new:netaddr.ip.IPAddress
   state: !!python/tuple [169857547, 4]
 - !!python/object/new:netaddr.ip.IPAddress
   state: !!python/tuple [169857557, 4]
@@ -12,5 +10,5 @@ iplist:
   state: !!python/tuple [169857567, 4]
 name: BUR
 psk: '!QAZ2wsx'
-tftp: ''
+tftp:
 username: itmgmt
