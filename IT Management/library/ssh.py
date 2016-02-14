@@ -1,9 +1,28 @@
 import paramiko
 import time
+import re
 import socket
-from netmiko import ConnectHandler
+from ciscoconfparse import CiscoConfParse
 
 paramiko.util.log_to_file("logs\\paramiko.log")
+
+
+class Verify(object):
+    def __init__(self, conf, chan):
+        self.chan = chan
+        self.conf = conf
+        self.before = send_command('show run {0}'.format(self.conf[0]), chan=self.chan, read=True)
+        self.after = ''
+
+    def download_after(self):
+        self.chan.recv(5000)
+        self.after = send_command('show run {0}'.format(self.conf[0]), chan=self.chan, read=True)
+
+    def get_before(self):
+        return CiscoConfParse(self.before.splitlines()[1:-1])
+
+    def get_after(self):
+        return CiscoConfParse(self.after.splitlines()[1:-1])
 
 
 # Sends commands
@@ -16,15 +35,27 @@ def send_command(*commands, **kwargs):
     configure = kwargs.pop('configure', False)
     read = kwargs.pop('read', False)
     chan = kwargs.pop('chan', False)
+    verify = kwargs.pop('verify', False)
     command = '\n'.join(commands)
+    if verify:
+        verifier = Verify(command.splitlines(), chan)
     if configure:
         command = 'conf t\n' + command + '\n end\n'
-    time.sleep(.25)
     chan.send(command + '\n')
+    time.sleep(.5)
     if read:
-        time.sleep(5)
-        recv = chan.recv(102400)
+        time.sleep(1)
+        recv = chan.recv(65535)
         return recv
+    if verify:
+        verifier.download_after()
+        before = verifier.get_before()
+        after = verifier.get_after()
+        for line in after.find_all_children(r'.*'):
+            if line not in before.find_all_children(r'.*'):
+                print line
+        print()
+    chan.recv(65535)
 
 
 def get_running_config(chan, enable_password):
@@ -34,8 +65,6 @@ def get_running_config(chan, enable_password):
     :param enable_password: enable password
     :return: running config
     """
-    from ciscoconfparse import CiscoConfParse
-    import re
 
     # sends 'show running-config' to device
     running_config = send_command('skip', 'sh run', read=True, chan=chan)
@@ -70,25 +99,12 @@ def login(ip, username, password):
             ssh.connect(ip, username=username, password=password, look_for_keys=False, allow_agent=True)
             chan = ssh.invoke_shell()
             time.sleep(.25)
-            send_command('enable', username, password, chan=chan)
+            if '>' in chan.recv(5000):
+                send_command('enable', username, password, chan=chan)
             return chan, ssh
         except socket.error:
             return 0, 0
         except paramiko.ssh_exception.SSHException:
-            try:
-                cisco_3560 = {
-                    'device_type': 'cisco_ios',
-                    'ip': ip,
-                    'username': username,
-                    'password': password
-                }
-                net_connect = ConnectHandler(**cisco_3560)
-                print(net_connect.find_promtp())
-                output = net_connect.send_command("enable")
-                print(output)
-            except socket.error:
-                pass
-
             if counter == 3:
                 return 0, 0
             continue

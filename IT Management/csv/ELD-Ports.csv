@@ -1,0 +1,134 @@
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+1,MDF,10.35.10.1,TagAll,,,,,,,,,,,,,,Switch,10.35.10.3,48,Fiber
+2,MDF,10.35.10.1,TagAll,,,,,,,,,,,,,,-,,,Fiber
+24,MDF,10.35.10.1,,,,,,,,,,,,,,,AT&T,Cisco,2,Fiber
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+47,MDF,10.35.10.3,TagAll,,,,,,,,,,,,,,Switch,10.31.210.1,47,Copper
+48,MDF,10.35.10.3,TagAll,,,,,,,,,,,,,,Switch,10.35.10.1,1,Fiber
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+3,MDF,10.31.210.1,,,,,,,,,,,,x,,,PP-WALL,PP-WALL,1/23,Copper
+5,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,1/24,Copper
+7,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,½,Copper
+9,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,¼,Copper
+11,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,1/5,Copper
+12,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,1/6,Copper
+13,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,1/7,Copper
+14,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,1/9,Copper
+15,MDF,10.31.210.1,,,,,,,x,,,,,,,,Port 1,Server R820,2/13,Copper
+18,MDF,10.31.210.1,,,,,,,x,,,,,,,,SFT,3COM,2/19,Copper
+19,MDF,10.31.210.1,,,,,,,x,,,,,,,,PP-WALL,PP-WALL,2/21,Copper
+20,MDF,10.31.210.1,,,,,x,,,,,,,,,,PP-WALL,PP-WALL,2/48,Copper
+21,MDF,10.31.210.1,,,,,x,,,,,,,,,,PP-WALL,PP-WALL,2/43,Copper
+22,MDF,10.31.210.1,,,,,x,,,,,,,,,,PP-WALL,PP-WALL,1/35,Copper
+28,MDF,10.31.210.1,,,,,,,,,x,,,,,,A 1,PP,1/36,Copper
+29,MDF,10.31.210.1,,,,,,,,,x,,,,,,A 13,PP,1/1,Copper
+30,MDF,10.31.210.1,,,,,,,,,x,,,,,,A 14,PP,2/1,Copper
+31,MDF,10.31.210.1,,,,,,,,,x,,,,,,A 15,PP,2/2,Copper
+32,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 17,PP,2/9,Copper
+33,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 18,PP,2/22,Copper
+34,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 19,PP,2/31,Copper
+35,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 20,PP,1/46,Copper
+36,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 21,PP,1/48,Copper
+37,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 22,PP,1/25,Copper
+38,MDF,10.31.210.1,,,,,,,,,,,,x,,,A 23,PP,1/29,Copper
+39,MDF,10.31.210.1,,,,,,,,,,,,,,,A 24,PP,2/30,Copper
+40,MDF,10.31.210.1,,,,,,,,,,,,,,,A 16,PP,2/20,Copper
+42,MDF,10.31.210.1,,x,x,x,x,x,x,x,x,x,,,,,NIC 2,Server,2/10,Copper
+43,MDF,10.31.210.1,,x,,,,,,,,,,,,,NIC 1,Server,2/11,Copper
+47,MDF,10.31.210.1,TagAll,,,,,,,,,,,,,,Switch,10.35.10.3,1/47,Copper
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+3,IDF AD,10.35.10.2,,,,,,,x,,,,,,,, A,PP,1/1,Copper
+4,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,½,Copper
+5,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/3,Copper
+6,IDF AD,10.35.10.2,,,,,,,x,,,,,,,, A,PP,¼,Copper
+7,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/5,Copper
+8,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/6,Copper
+10,IDF AD,10.35.10.2,,,,,,,x,,,,,,,, A,PP,1/7,Copper
+11,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/8,Copper
+13,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/9,Copper
+14,IDF AD,10.35.10.2,,,,,,,x,,,,,,,, A,PP,1/10,Copper
+15,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/11,Copper
+16,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/12,Copper
+17,IDF AD,10.35.10.2,,,,,,,x,,,,,,,, A,PP,1/13,Copper
+18,IDF AD,10.35.10.2,,,,,,,x,,,,,,,,A,PP,1/14,Copper
+22,IDF AD,10.35.10.2,,,,,,x,,,,,,,,,A,PP,1/48,Copper
+23,IDF AD,10.35.10.2,,,,,,x,,,,,,,,, A,PP,1/16,Copper
+25,IDF AD,10.35.10.2,,,,,,x,,,,,,,,,A,PP,1/15,Copper
+26,IDF AD,10.35.10.2,,,,,,x,,,,,,,,,A,PP,1/17,Copper
+33,IDF AD,10.35.10.2,,,,,,x,,,,,,x,,, A,PP,1/18,Copper
+35,IDF AD,10.35.10.2,,,,,,,,,,,,x,,,A,PP,1/19,Copper
+36,IDF AD,10.35.10.2,,,,,,,,,,,,x,,,AC Controller,Tagged,1/20,Copper
+39,IDF AD,10.35.10.2,,,,,,,,,,,,x,,,A ,PP,1/21,Copper
+41,IDF AD,10.35.10.2,,,,,,,,,,,,x,,,A,PP,1/22,Copper
+43,IDF AD,10.35.10.2,,,,,,,,,,,,x,,,A,PP,1/23,Copper
+45,IDF AD,10.35.10.2,TagAll,,,,,,,,,,,x,,,10.35.10.7,Switch,1/24,Copper
+46,IDF AD,10.35.10.2,TagAll,,,x,,,x,,,,,,,,10.35.10.6,Switch,1/25,Fiber
+47,IDF AD,10.35.10.2,TagAll,,,x,,,x,,,,,,,,10.35.10.1,Switch,1/26,Fiber
+48,IDF AD,10.35.10.2,TagAll,,,x,,,x,,,,,,,,10.35.10.4,Switch,1/27,Fiber
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+8,IDF AD,10.35.10.7,,,,,,,,,,,,,,,D 7,PP,,Copper
+10,IDF AD,10.35.10.7,,,,,,,,,,,,,,,Tagged,Printer,,Copper
+14,IDF AD,10.35.10.7,,,,,,,,,,,,,,,A 12,PP,,Copper
+16,IDF AD,10.35.10.7,,,,,,,,,,,,,,,Tagged,PP,,Copper
+21,IDF AD,10.35.10.7,,,,,,,,,,,,,,,D 1,AP,,Copper
+22,IDF AD,10.35.10.7,,,,,,,,,,,,,,,D 2,AP,,Copper
+23,IDF AD,10.35.10.7,,,,,,,,,,,,,,,D 4,AP,,Copper
+25,IDF AD,10.35.10.7,,,,,,,,,,,,,,,Alarm System,Tagged,,Copper
+47,IDF AD,10.35.10.7,TagAll,,,,,,,,,,,,,,Switch,Switch,45,Copper
+48,IDF AD,10.35.10.7,TagAll,,,,,,,,,,,,,,10.35.10.5,Switch,48,Fiber
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+7,IDF A,10.35.10.6,,,,,,,,,,,,,,,A 7,PP,,Copper
+10,IDF A,10.35.10.6,,,,,,,,,,,,,,,A 9,PP,,Copper
+13,IDF A,10.35.10.6,,,,,,,,,,,,,,,A 16,PP,,Copper
+17,IDF A,10.35.10.6,,,,,,,,,,,,,,,A 19,PP,,Copper
+25,IDF A,10.35.10.6,,,,,,,,,,,,,,,B 16,PP,,Copper
+26,IDF A,10.35.10.6,,,,,,,,,,,,,,,B 9,PP,,Copper
+40,IDF A,10.35.10.6,,,,,,,,,,,,,,,PoE Adaptor,PoE Adaptor,,Copper
+41,IDF A,10.35.10.6,,,,,,,,,,,,,,,B 21,PP,,Copper
+42,IDF A,10.35.10.6,,,,,,,,,,,,,,,B 22,PP,,Copper
+43,IDF A,10.35.10.6,,,,,,,,,,,,,,,B 23,PP,,Copper
+44,IDF A,10.35.10.6,,,,,,,,,,,,,,,CAMERA,CAMERA,,Copper
+46,IDF A,10.35.10.6,,,,,,,,,,,,,,,AP,AP,,Copper
+48,IDF A,10.35.10.6,TagAll,,,,,,,,,,,,,,10.35.10.2,Switch,46,Fiber
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+2,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 1,PP,,Copper
+3,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 2,PP,,Copper
+4,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 4,PP,,Copper
+5,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 5,PP,,Copper
+7,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 6,PP,,Copper
+8,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 7,PP,,Copper
+10,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 8,PP,,Copper
+11,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 9,PP,,Copper
+13,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 10,PP,,Copper
+14,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 11,PP,,Copper
+15,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 12,PP,,Copper
+17,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 13,PP,,Copper
+18,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 14,PP,,Copper
+21,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 18,PP,,Copper
+22,IDF B,10.35.10.4,,,,,,,,,,,,,,,Tagged,Tagged,,Copper
+23,IDF B,10.35.10.4,,,,,,,,,,,,,,,phone,phone,,Copper
+37,IDF B,10.35.10.4,,,,,,,,,,,,,,,A 19,PP,,Copper
+38,IDF B,10.35.10.4,,,,,,,,,,,,,,,A 20,PP,,Copper
+39,IDF B,10.35.10.4,,,,,,,,,,,,,,,A 21,PP,,Copper
+40,IDF B,10.35.10.4,,,,,,,,,,,,,,,A 22,PP,,Copper
+41,IDF B,10.35.10.4,,,,,,,,,,,,,,,A 23,PP,,Copper
+42,IDF B,10.35.10.4,,,,,,,,,,,,,,,A 24,PP,,Copper
+43,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 19,PP,,Copper
+44,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 20,PP,,Copper
+45,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 21,PP,,Copper
+46,IDF B,10.35.10.4,,,,,,,,,,,,,,,B 22,PP,,Copper
+48,IDF B,10.35.10.4,TagAll,,,,,,,,,,,,,,10.35.10.2,Switch,48,Fiber
+Port,Loc.,Switch IP,10,20,30,40,50,60,70,80,90,91,92,100,135,250,Patch Pannel,Device,D Port,Devise Type
+2,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 3,PP,,Copper
+3,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 5,PP,,Copper
+7,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 2,PP,,Copper
+8,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 8,PP,,Copper
+11,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 11,PP,,Copper
+16,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 17,PP,,Copper
+17,IDF C,10.35.10.5,,,,,,,,,,,,,,,A 14,PP,,Copper
+21,IDF C,10.35.10.5,,,,,,,,,,,,,,,AP,PP,,Copper
+40,IDF C,10.35.10.5,,,,,,,,,,,,,,,B 21,PP,,Copper
+41,IDF C,10.35.10.5,,,,,,,,,,,,,,,B 22,PP,,Copper
+42,IDF C,10.35.10.5,,,,,,,,,,,,,,,B 23,PP,,Copper
+43,IDF C,10.35.10.5,,,,,,,,,,,,,,,B 24,PP,,Copper
+48,IDF C,10.35.10.5,TagAll,,,,,,,,,,,,,,10.35.10.7,Switch,48,Fiber

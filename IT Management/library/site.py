@@ -1,6 +1,5 @@
 # Profile for customer site
 
-
 class Site(object):
     def __init__(self, name):
         self.name = name
@@ -9,4 +8,7 @@ class Site(object):
         self.username = ''
         self.psk = ''
         self.enable = ''
-        self.tftp = None
+        self.tftp = ''
+        self.core_template = name + '-VLANs.csv'
+        self.port_map = name + '-Ports.csv'
+        self.mac = name + '-MAC.csv'

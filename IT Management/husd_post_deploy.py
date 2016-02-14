@@ -1,3 +1,4 @@
+# coding=utf-8
 import library
 import re
 import yaml
@@ -12,28 +13,49 @@ print("Post Deployment - Hayward")
 SITE = raw_input("School Code: ").upper()
 
 # Checks for site yaml file
-if not os.path.isfile('yamls\\{0}.yml'.format(SITE)):
+if not os.path.isfile(os.path.sep.join(['yamls', SITE + '.yml'])):
     sys.exit('Site not setup, run setup_site.py')
 
+# Loads access info
+with open(os.path.sep.join(['yamls', SITE + '.yml']), 'r+') as f:
+    saved_data = yaml.load(f)
+
 # Checks for mac address csv
-SEARCH = True
-if not os.path.isfile('csv\\{0}.csv'.format(SITE)):
+if not os.path.isfile(os.path.sep.join(['csv', saved_data.mac])):
     SEARCH = False
     print("MAC address csv missing, Skipping search")
+else:
+    SEARCH = True
 
-# Loads access info
-with open('yamls\\{0}.yml'.format(SITE), 'r+') as f:
-    saved_data = yaml.load(f)
+# Checks for Port-mapping
+if not os.path.isfile(os.path.sep.join(['csv', saved_data.port_map])):
+    PORT_MAPPING = False
+else:
+    PORT_MAPPING = True
+
+with open(os.path.sep.join(['saved data', 'oui_discovery.yml']), 'r') as f:
+    oui_discovery = yaml.load(f)
 
 # Reads mac to vlan spreadsheet for existing network
 if SEARCH:
     print("Loading MAC address to search for")
     mac_per_vlan = defaultdict(list)
-    with open('csv\\{0}.csv'.format(SITE), 'r') as f:
+    with open(os.path.sep.join(['csv', saved_data.mac]), 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
             for key in row.keys():
                 mac_per_vlan[key].append(netaddr.EUI(library.format_mac(row[key])))
+
+if PORT_MAPPING:
+    print("Loading port assignments")
+    port_assignments = defaultdict(dict)
+    iface = defaultdict(list)
+    with open(os.path.sep.join(['csv', saved_data.port_map]), 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if 'x' in row.values():
+                iface['/1/'.join(row['D Port'].split('/'))].append(row.keys()[row.values().index('x')])
+                port_assignments[row['Switch IP']].update(iface)
 
 for ip in saved_data.iplist:
 
@@ -53,6 +75,7 @@ for ip in saved_data.iplist:
             seconds = t % 60
             print "%d:%2d" % (minutes, seconds),
             time.sleep(5.0)
+        print("Done")
 
     # Removes vlan 24 & 26
     print("Removing vlan 24, 26, and 70")
@@ -60,9 +83,25 @@ for ip in saved_data.iplist:
 
     # Adds vlan 20
     print("Adding vlan 20 and 70")
-    library.send_command('vlan 20 name Servers_Printers', 'tag ethernet 1/2/1', 'span 80', configure=True,
-                         chan=chan)
+    library.send_command('vlan 20 name Servers_Printers', 'tag ethernet 1/2/1', 'span 80', configure=True, chan=chan)
     library.send_command('vlan 70 name VoIP', 'tag ethernet 1/2/1', 'span 80', configure=True, chan=chan)
+
+    if PORT_MAPPING:
+        print("Applying port map")
+        assignments = port_assignments[ip.format()]
+        for iface in assignments:
+            if iface == '½':
+                assignments['1/1/2'] = assignments.pop(iface)
+                iface = '1/1/2'
+            if iface == '¼':
+                assignments['1/1/4'] = assignments.pop(iface)
+                iface = '1/1/4'
+            for vlan in assignments[iface]:
+                tag = "vlan {0}\ntagged ethernet {1}\n".format(vlan, iface).splitlines()
+                dual = "interface ethernet {1}\ndual-mode {0}\n".format(vlan, iface).splitlines()
+                print("Configuring {0} for Vlan {1}".format(iface, vlan))
+                library.send_command(*tag, chan=True, configure=True)
+                library.send_command(*dual, chan=True, configure=True)
 
     # Loads Interface Index table
     print("Loading interface index")
@@ -76,32 +115,28 @@ for ip in saved_data.iplist:
     for i in range(len(ifIndex[0])):
         interfaces[ifIndex[0][i]] = library.Interface(ifIndex[0][i], ifName[0][i])
 
+    # Enabling PoE
     for intf in interfaces:
         library.send_command(interfaces[intf].command_name, 'inline power power-by-class 3', chan=chan, configure=True)
-        # library.send_command('sh vlan e {0} | in PORT'.format(interfaces[intf].command_name))
 
     # Writes memory
     print("Writing memory")
     library.send_command('write memory', configure=True, chan=chan)
 
     # Reboots Switch and waits 5 minutes to give enough time for POE devices to powerup
-    # print("Reloading switch")
-    # library.send_command('reload after 00:00:00', chan=chan)
-    #
-    # # Visual timer until reboot is done
-    # for t in range(300, -1, -5):
-    #     minutes = t / 60
-    #     seconds = t % 60
-    #     print "%d:%2d  " % (minutes, seconds),
-    #     time.sleep(5.0)
+    print("Reloading switch")
+    library.send_command('reload after 00:00:00', chan=chan)
+
+    # Visual timer until reboot is done
+    for t in range(300, -1, -5):
+        minutes = t / 60
+        seconds = t % 60
+        print "%d:%2d  " % (minutes, seconds),
+        time.sleep(5.0)
 
     # Reopens SSH connection
     print("Re-opening SSH Connection")
     chan, ssh = library.login(ip.format(), saved_data.username, saved_data.psk)
-
-    # Download running config
-    print("Downloading running config")
-    running_config = library.get_running_config(chan, saved_data.enable)
 
     # Activates IGMP snooping
     print("Enabling IGMP Snooping")
@@ -111,6 +146,10 @@ for ip in saved_data.iplist:
     print("Enabling DHCP Snooping")
     for vlan_id in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
         library.send_command('ip dhcp snooping vlan {0}'.format(str(vlan_id)), configure=True, chan=chan)
+
+    # Enables Flow Control
+    print("Enabling Flow Control")
+    library.send_command('flow-control', chan=chan, configure=True)
 
     # Loads MAC-Table
     print("Loading MAC Table")
@@ -122,34 +161,60 @@ for ip in saved_data.iplist:
         mac = re.search(r'[0-9:a-fA-F]{17}', cam_table[1][i]).group()
         interfaces[cam_table[0][i]].mac_table.append(netaddr.EUI(mac))
 
+    # Searches for live mac address and configures based on spreadsheet
+    print("Searching interfaces for devices")
+    for interface in sorted(interfaces):
+        for mac in interfaces[interface].mac_table:
+            for search in oui_discovery.items():
+                try:
+                    if mac.oui in search[1]:
+                        if interfaces[interface].flag is 'switch':
+                            continue
+                        interfaces[interface].flag = search[0].lower()
+                        print("Interface {0}: MAC {1}: Flag: {2}".format(interfaces[interface].ifName, str(mac),
+                                                                         interfaces[interface].flag))
+                except netaddr.NotRegisteredError:
+                    pass
+
+    # Configures Access Points
+    print("Configuring Access Points")
+    for interface in sorted(interfaces):
+        if interfaces[interface].flag == 'Access_Points':
+            library.send_command(interfaces[interface].command_name, 'port-name **** AP ****', chan=chan,
+                                 configure=True)
+            print("Configuring {0} for Vlan 50".format(interfaces[interface].command_name))
+            library.send_command('vlan 50', 'tag {0}'.format(interfaces[interface].command_name), chan=chan,
+                                 configure=True)
+            library.send_command(interfaces[interface].command_name, 'no dual', 'dual 50', chan=chan, configure=True)
+
     if SEARCH:
         # Searches for live mac address and configures based on spreadsheet
         print("Searching interfaces for devices")
         for intf in sorted(interfaces):
 
+            library.send_command('vlan 20 70', 'tag {0}'.format(interfaces[intf].command_name), configure=True,
+                                 chan=chan)
+            library.send_command(interfaces[intf].command_name, 'dual-mode 20', 'voice 70', configure=True, chan=chan)
+
             for mac in interfaces[intf].mac_table:
                 for search in mac_per_vlan.items():
                     if mac in search[1]:
+
                         if '1/2/' in interfaces[intf].ifName:
                             continue
                         print("Match found {0} : {1} : VLAN {2}".format(interfaces[intf].ifName, mac, search[0]))
-                        interface_line = running_config.find_objects(
-                            r'interface {0}'.format(interfaces[intf].command_name),exactmatch=True)
 
                         print("Configuring {0} for VLAN {1}".format(interfaces[intf].ifName, search[0]))
 
                         # tag port to vlans
                         interfaces[intf].vlan = int(search[0])
 
-                        library.set_dual_mode(intf, interfaces[intf].vlan, 70)
-
-                        library.send_command('vlan {0} 70'.format(search[0]), 'tag {0}'.format(
-                            map(lambda string: string[:8] + ' ' + string[8:], [interfaces[intf].ifName])[0]),
-                                             configure=True, chan=chan)
+                        library.send_command('vlan {0} 70'.format(search[0]),
+                                             'tag {0}'.format(interfaces[intf].command_name), configure=True, chan=chan)
 
                         # adds dual-mode for proper vlan
-                        library.send_command(interface_line[0].text, 'no dual', 'dual-mode {0}'.format(search[0]),
-                                             'inline power power-b 3',
+                        library.send_command(interfaces[intf].command_name, 'no dual',
+                                             'dual-mode {0}'.format(search[0]), 'inline power power-b 3',
                                              configure=True, chan=chan)
 
     # Writes memory

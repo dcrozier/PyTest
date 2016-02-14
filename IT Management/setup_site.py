@@ -109,7 +109,7 @@ def back():
 
 # Exit program
 def leave():
-    f = open('yamls\\' + SITE.name + '.yml', 'w+')
+    f = open(os.path.sep.join(['yamls', SITE.name + '.yml']), 'w+')
     yaml.dump(SITE, f)
     f.close()
     sys.exit("Site Created")
