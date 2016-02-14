@@ -1,0 +1,10 @@
+!!python/object:library.site.Site
+community_string: home
+enable: donald
+iplist:
+- !!python/object/new:netaddr.ip.IPAddress
+  state: !!python/tuple [168100090, 4]
+name: HOME
+psk: '0456135'
+tftp: ''
+username: donald

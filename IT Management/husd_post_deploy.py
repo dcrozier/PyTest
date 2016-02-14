@@ -134,11 +134,7 @@ for ip in saved_data.iplist:
                             continue
                         print("Match found {0} : {1} : VLAN {2}".format(interfaces[intf].ifName, mac, search[0]))
                         interface_line = running_config.find_objects(
-                            r'interface {0}'.format(
-                                map(lambda string: string[:8] + ' ' + string[8:], [interfaces[intf].ifName])[0]
-                            ),
-                            exactmatch=True
-                        )
+                            r'interface {0}'.format(interfaces[intf].command_name),exactmatch=True)
 
                         print("Configuring {0} for VLAN {1}".format(interfaces[intf].ifName, search[0]))
 

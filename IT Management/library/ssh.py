@@ -1,6 +1,7 @@
 import paramiko
 import time
 import socket
+from netmiko import ConnectHandler
 
 paramiko.util.log_to_file("logs\\paramiko.log")
 
@@ -68,12 +69,26 @@ def login(ip, username, password):
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username=username, password=password, look_for_keys=False, allow_agent=True)
             chan = ssh.invoke_shell()
-            time.sleep(1)
+            time.sleep(.25)
             send_command('enable', username, password, chan=chan)
             return chan, ssh
         except socket.error:
             return 0, 0
         except paramiko.ssh_exception.SSHException:
+            try:
+                cisco_3560 = {
+                    'device_type': 'cisco_ios',
+                    'ip': ip,
+                    'username': username,
+                    'password': password
+                }
+                net_connect = ConnectHandler(**cisco_3560)
+                print(net_connect.find_promtp())
+                output = net_connect.send_command("enable")
+                print(output)
+            except socket.error:
+                pass
+
             if counter == 3:
                 return 0, 0
             continue
